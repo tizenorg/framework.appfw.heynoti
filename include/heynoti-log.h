@@ -70,9 +70,9 @@
 #include <dlog.h>
 #define UTIL_DLOG(prio, fmt, arg...) \
 		do { } while (0)
-#define UTIL_INFO(fmt, arg...) LOGD("[%s,%d] "fmt,__FUNCTION__,__LINE__,##arg)
-#define UTIL_ERR(fmt, arg...) LOGE("[%s,%d] "fmt,__FUNCTION__,__LINE__,##arg)
-#define _UTIL_DBG(fmt, arg...) LOGD("[%s,%d] "fmt,__FUNCTION__,__LINE__,##arg)
+#define UTIL_INFO(fmt, arg...) LOGD(fmt,##arg)
+#define UTIL_ERR(fmt, arg...) LOGE(fmt,##arg)
+#define _UTIL_DBG(fmt, arg...) LOGD(fmt,##arg)
 #else
 #include <syslog.h>
 

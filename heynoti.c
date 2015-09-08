@@ -60,7 +60,6 @@ static int __make_noti_root(const char *p);
 static int __make_noti_file(const char *p);
 static inline int __make_noti_path(char *path, int size, const char *name);
 static int __read_proc(const char *path, char *buf, int size);
-static int __get_kern_ver();
 static void __clear_nslot_list(GList *g_ns);
 static struct noti_cont *__get_noti_cont(int fd);
 static int __handle_callback(struct noti_cont *nc, int wd, uint32_t mask);
@@ -128,7 +127,7 @@ static int __make_noti_file(const char *p)
 
 	if ((fd = open(p, O_RDONLY)) == -1)
 		return -1;
-		
+
 	close(fd);
 
 	return 0;
@@ -160,10 +159,9 @@ static int __read_proc(const char *path, char *buf, int size)
 	return ret;
 }
 
-static int kern_ver;		/* Kernel version */
 #define PROC_VERSION "/proc/version"
 
-static int __get_kern_ver()
+static int __check_kern_ver()
 {
 	struct utsname nm;
 	int ret;
@@ -171,8 +169,6 @@ static int __get_kern_ver()
 	int v1;
 	int v2;
 	int v3;
-
-	util_retv_if(kern_ver != 0, kern_ver);
 
 	ret = uname(&nm);
 	if (ret == 0) {
@@ -186,8 +182,11 @@ static int __get_kern_ver()
 	}
 
 	if (ret == 3) {
-		kern_ver = KERNEL_VERSION(v1, v2, v3);
-		return kern_ver;
+		if(KERNEL_VERSION(v1, v2, v3) < KERNEL_VERSION(2, 6, 13)) {
+			return -1;
+		} else {
+			return 0;
+		}
 	}
 
 	return -1;
@@ -248,7 +247,7 @@ static int __handle_event(int fd)
 {
 	int r;
 	struct inotify_event ie;
-	char name[FILENAME_MAX];
+	char name[FILENAME_MAX] = {0, };
 
 	struct noti_cont *nc;
 
@@ -261,10 +260,16 @@ static int __handle_event(int fd)
 		if (nc)
 			__handle_callback(nc, ie.wd, ie.mask);
 
-		if (ie.len > 0)
-			read(fd, name, ie.len);
+		if(ie.len > SSIZE_MAX)
+			return -1;
 
-		r = read(fd, &ie, sizeof(ie));
+		if (ie.len > 0u) {
+			r = read(fd, name, (ie.len > FILENAME_MAX) ? (size_t)FILENAME_MAX : (size_t) ie.len);
+		}
+
+		if(r > 0) {
+			r = read(fd, &ie, sizeof(ie));
+		}
 	}
 
 	return 0;
@@ -526,7 +531,7 @@ API int heynoti_init()
 
 	struct noti_cont *nc;
 
-	if (__get_kern_ver() < KERNEL_VERSION(2, 6, 13)) {
+	if(__check_kern_ver() < 0) {
 		UTIL_ERR("inotify requires kernel version >= 2.6.13 ");
 		errno = EPERM;
 		return -1;
@@ -535,8 +540,10 @@ API int heynoti_init()
 	fd = inotify_init();
 	util_retvm_if(fd == -1, -1, "inotify init: %s", strerror(errno));
 
-	fcntl(fd, F_SETFD, FD_CLOEXEC);
-	fcntl(fd, F_SETFL, O_NONBLOCK);
+	r = fcntl(fd, F_SETFD, FD_CLOEXEC);
+	util_retvm_if(r < 0, -1, "fcntl error : %s", strerror(errno));
+	r = fcntl(fd, F_SETFL, O_NONBLOCK);
+	util_retvm_if(r < 0, -1, "fcntl error : %s", strerror(errno));
 
 	r = __make_noti_root(noti_root);
 	if (r == -1) {

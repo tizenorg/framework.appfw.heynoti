@@ -24,28 +24,48 @@
 
 /**
  *
- * @ingroup   SLP_PG 
+ * @ingroup   SLP_PG
  * @defgroup   HEYNOTI_PG HEY(ligHt Easy speedY) Notification
 @{
 <h1 class="pg">Introduction</h1>
 
-Heynoti is notification system which uses the Linux kernel inotify subsystem. <br>
-It is ligHt, Easy, speedY, so that is named 'Heynoti'. <br>
-But it doesn't support data delivery, is just sent event notification. <br>
-If developers want to send event with data like integer, string, they have to use DBus for IPC. <br>
-Heynoti is based on inotify in Linux Sytem. So for more information about inotify, refer to manpage(inotify(7)).
+<p>Heynoti is notification system which uses the Linux kernel inotify subsystem. </p>
+<p> It is ligHt, Easy, speedY, so that is named 'Heynoti'. </p>
+<p> But it doesn't support data delivery, is just sent event notification. </p>
+<p> If developers want to send event with data like integer, string, they have to use DBus for IPC. </p>>
+<p> Heynoti is based on inotify in Linux Sytem. So for more information about inotify, refer to manpage(inotify(7)).</p>
 
-@image html SLP_Heynoti_PG_image01.png
+<h1 class="pg">Features</h1>
+<ul>
+	<li>HEYNOTI provides a mechanism to define/undefine a notification </li>
+	<li>It provides a mechanism to subscribe for a notification </li>
+	<li>It supports unsubscription from subscription</li>
+	<li>It provides a mechanism to publish a notification</li>
+</ul>
 
 <h2 class="pg">Properties</h2>
-- HEY(ligHt Easy speedY) Notification
-- Convenient API
-- Header File : heynoti.h
+	<ul>
+		<li> light weight Notification system. </li>
+		<li> Very fast Notifcation delivery </li>
+		<li> Convenient API's to use </li>
+		<li> It does not send event data </li>
+	</ul>
+
+<h1 class="pg"> Heynoti Logical view diagram </h1>
+\image html SLP_heynoti_PG_images_logical_view.png "Picture 1. Logical view"
+
+
+<h1 class="pg"> Heynoti Functional diagram </h1>
+\image html SLP_Heynoti_PG_image01.png "Picture 2. Functional  view"
+
 
 <h1 class="pg">Programming Guide</h1>
-For receiving notification, we can use heynoti_attach_handler() or heynoti_poll_event().
+<h2 class="pg"> Header file </h2>
+<p> header file name :<strong> heynoti.h </strong> </p>
+
+<p>For receiving notification, we can use heynoti_attach_handler() or heynoti_poll_event().
 heynoti_attach_handler() use g_main_loop of default context.
-For g_main_loop, refer to glib manual.
+For g_main_loop, refer to glib manual.</p>
 
 @code
 #include <stdio.h>
@@ -88,7 +108,7 @@ int main(int argc, const char *argv[])
 }
 @endcode
 
-And heynoti_poll_event() use polling mechanism. Therefore the process block until notification is received.
+<p> And heynoti_poll_event() use polling mechanism. Therefore the process block until notification is received.</p>
 
 @code
 #include <stdio.h>
@@ -116,14 +136,14 @@ int main(int argc, const char *argv[])
 
 	if(!heynoti_poll_event(fd))
 		fprintf(stderr, "heynoti_poll_event FAIL\n");
-	
+
 	heynoti_unsubscribe(fd, "test_testnoti", callback);
 
 	return 0;
 }
 @endcode
 
-If developer want to send notification message to the other process that watch the event, call heynoti_publish() API.
+<p> If developer want to send notification message to the other process that watch the event, call heynoti_publish() API. </p>
 
 @code
 #include <stdio.h>
@@ -139,12 +159,12 @@ int main(int argc, char** argv)
 		fprintf(stderr, "heynoti_publish() FAIL\n");
 		return -1;
 	}
-		
+
 	return 0;
 }
 @endcode
 
-Also, heynoti can do the monitoring of file. This is a basic faculty of inotify.
+<p> Also, heynoti can do the monitoring of file. This is a basic faculty of inotify. </p>
 
 @code
 #include <stdio.h>

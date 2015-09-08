@@ -2,24 +2,20 @@
 Name:       heynoti
 Summary:    HEY (ligHt Easy speedy) notification library
 Version:    0.0.2
-Release:    35
+Release:    45
 Group:      System/Libraries
-License:    Apache License, Version 2.0
+License:    Apache-2.0
 Source0:    %{name}-%{version}.tar.gz
 
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
-
 BuildRequires:  cmake
-
 BuildRequires:  pkgconfig(dlog)
 BuildRequires:  pkgconfig(glib-2.0)
-BuildRequires:  pkgconfig(ecore)
-
+#BuildRequires:  pkgconfig(ecore)
 
 %description
 lightweight notification library, service APIs
-
 
 %package devel
 Summary:    Notification library
@@ -30,14 +26,11 @@ Requires:   heynoti
 %description devel
 heynoti API (devel)
 
-
 %prep
 %setup -q
 
-
 %build
 cmake . -DCMAKE_INSTALL_PREFIX=%{_prefix} -DCMAKE_BUILD_TYPE="Debug"
-
 
 make %{?jobs:-j%jobs}
 
@@ -45,6 +38,8 @@ make %{?jobs:-j%jobs}
 rm -rf %{buildroot}
 %make_install
 
+mkdir -p %{buildroot}/usr/share/license
+install LICENSE %{buildroot}/usr/share/license/%{name}
 
 %post
 /sbin/ldconfig
@@ -53,13 +48,13 @@ chmod 1755 /opt/share/noti
 
 %postun -p /sbin/ldconfig
 
-
 %files
+%manifest heynoti.manifest
 %defattr(-,root,root,-)
 %{_libdir}/libheynoti.so.0
 %{_libdir}/libheynoti.so.0.0.2
 %{_bindir}/heynotitool
-
+/usr/share/license/%{name}
 
 %files devel
 %defattr(-,root,root,-)
