@@ -4,7 +4,7 @@ Summary:    HEY (ligHt Easy speedy) notification library
 Version:    0.0.2
 Release:    45
 Group:      System/Libraries
-License:    Apache-2.0
+License:    Apache License, Version 2.0
 Source0:    %{name}-%{version}.tar.gz
 
 Requires(post): /sbin/ldconfig
